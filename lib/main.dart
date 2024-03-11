@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:open_weather_provider/pages/home_page.dart';
 import 'package:open_weather_provider/providers/providers.dart';
 import 'package:open_weather_provider/providers/weather/weather_provider.dart';
@@ -27,24 +28,21 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        ChangeNotifierProvider<WeatherProvider>(
-            create: (context) => WeatherProvider(
-              weatherRepository: context.read<WeatherRepository>(),
-            ),
+        StateNotifierProvider<WeatherProvider, WeatherState>(
+            create: (context) => WeatherProvider(),
         ),
-        ChangeNotifierProvider<TempSettingsProvider>(
+        StateNotifierProvider<TempSettingsProvider, TempSettingsState>(
           create: (context) => TempSettingsProvider(),
         ),
-        ChangeNotifierProxyProvider<WeatherProvider, ThemeProvider>(
+        StateNotifierProvider<ThemeProvider, ThemeState>(
           create: (_) => ThemeProvider(),
-          update: (_, weatherProvider, themeProvider) => themeProvider!..update(weatherProvider),
         ),
       ],
       builder: (context, child) {
         return MaterialApp(
           title: 'Weather App',
           debugShowCheckedModeBanner: false,
-          theme: context.watch<ThemeProvider>().state.appTheme == AppTheme.light
+          theme: context.watch<ThemeState>().appTheme == AppTheme.light
               ? ThemeData.light(useMaterial3: true)
               : ThemeData.dark(useMaterial3: true),
           home: const HomePage(),

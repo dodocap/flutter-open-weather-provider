@@ -17,30 +17,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? _city;
   late final WeatherProvider _weatherProvider;
+  late final void Function() _removeListener;
 
   @override
   void initState() {
     _weatherProvider = context.read<WeatherProvider>();
-    _weatherProvider.addListener(_registerListener);
+    _removeListener = _weatherProvider.addListener(_registerListener);
     super.initState();
   }
 
   @override
   void dispose() {
-    _weatherProvider.removeListener(_registerListener);
+    _removeListener();
     super.dispose();
   }
 
-  void _registerListener() {
-    final WeatherState weatherState = context.read<WeatherProvider>().state;
-
+  void _registerListener(WeatherState weatherState) {
     if (weatherState.status == WeatherStatus.error) {
       errorDialog(context, weatherState.error.errMsg);
     }
   }
 
   String showTemperature(double temperature) {
-    final tempUnit = context.watch<TempSettingsProvider>().state.tempUnit;
+    final tempUnit = context.watch<TempSettingsState>().tempUnit;
 
     if (tempUnit == TempUnit.fahrenheit) {
       return '${((temperature * 9 / 5) + 32).toStringAsFixed(2)}℉';
@@ -49,7 +48,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _showWeather() {
-    final state = context.watch<WeatherProvider>().state;
+    final state = context.watch<WeatherState>();
 
     if (state.status == WeatherStatus.initial) {
       return const Center(
