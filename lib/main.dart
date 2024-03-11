@@ -35,16 +35,21 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<TempSettingsProvider>(
           create: (context) => TempSettingsProvider(),
         ),
-      ],
-      child: MaterialApp(
-        title: 'Weather App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+        ChangeNotifierProxyProvider<WeatherProvider, ThemeProvider>(
+          create: (_) => ThemeProvider(),
+          update: (_, weatherProvider, themeProvider) => themeProvider!..update(weatherProvider),
         ),
-        home: const HomePage(),
-      ),
+      ],
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Weather App',
+          debugShowCheckedModeBanner: false,
+          theme: context.watch<ThemeProvider>().state.appTheme == AppTheme.light
+              ? ThemeData.light(useMaterial3: true)
+              : ThemeData.dark(useMaterial3: true),
+          home: const HomePage(),
+        );
+      },
     );
   }
 }
